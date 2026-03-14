@@ -106,6 +106,18 @@ class GateValidationService implements Contracts\GateValidationInterface
         if (empty($module->responsibility)) {
             $errors[] = 'responsibility';
         }
+        if (!empty($module->inputs)) {
+            $inputsDecoded = json_decode($module->inputs, true);
+            if (count($inputsDecoded) == 0) {
+                $errors[] = 'inputs';
+            }
+        }
+        if (!empty($module->outputs)) {
+            $inputsDecoded = json_decode($module->outputs, true);
+            if (count($inputsDecoded) == 0) {
+                $errors[] = 'outputs';
+            }
+        }
         return [
             'allowed' => count($errors) == 0,
             'message' => ucfirst(implode(',', $errors)) . (count($errors) > 1 ? ' are required' : ' is required')
