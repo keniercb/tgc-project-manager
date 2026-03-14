@@ -1,12 +1,14 @@
 Stack: Laravel (API) + Vue 3 (UI)
 
 ***Backend: tcg-backend*
+
   - Execute composer install
   - Configure enviroment vars
   - Execute php artisan migrate --seed
   - Execute php artisan serve
 
 ***Forntend:project-manager*
+
   - Execute npm install
   - Create .env file and add VITE_API_URL=http://route.to.api/api/v1/
   - npm run dev
