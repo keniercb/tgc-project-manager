@@ -8,6 +8,7 @@ use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\CreateProjectRequest;
 use App\Http\Resources\ProjectResource;
+use App\Services\Contracts\GateValidationInterface;
 use App\Services\Contracts\ProjectServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,7 +18,8 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class ProjectController extends Controller
 {
 
-    public function __construct(protected ProjectServiceInterface $projectService)
+    public function __construct(protected ProjectServiceInterface $projectService,
+                                protected GateValidationInterface $gateValidationService,)
     {
 
     }
@@ -50,7 +52,13 @@ class ProjectController extends Controller
 
     public function update(int $id, CreateProjectRequest $request): JsonResponse
     {
+
         $projectData = new ProjectInputData($request->input('name'), $request->input('clientName'), ProjectStatus::from($request->input('status')));
+        $validation = $this->gateValidationService->validateProjectTransaction($this->projectService->findProjectById($id));
+        if (!$validation['allowed']) {
+            return response()->json([
+                'message' => $validation['message']], 500);
+        }
         $project = $this->projectService->updateProject($id, $projectData);
         return response()->json([
                 'project' => $project,

@@ -10,7 +10,8 @@ use Tests\TestCase;
 
 class AuthUserTest extends TestCase
 {
-   protected UserServiceInterface $userService;
+    protected UserServiceInterface $userService;
+
     public function __construct($name)
     {
         parent::__construct($name);
@@ -19,7 +20,6 @@ class AuthUserTest extends TestCase
 
     public function testLogin()
     {
-        dd(config('database.default'), env('DB_CONNECTION'), env('APP_ENV'));
         $data = $this->userService->authenticate('admin@example.com', '1qazxsw2');
         $this->assertEquals(200, $data['status']);
     }

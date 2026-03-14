@@ -40,8 +40,22 @@ class GateValidationService implements Contracts\GateValidationInterface
                 'message' => ''
             ];
         }
-        if ($project->isDirty('status') && $project->getOriginal('status') == ProjectStatus::DISCOVERY->value) {
-
+        if ($project->isDirty('status') && $project->getOriginal('status') == ProjectStatus::DISCOVERY->value
+        ) {
+            $artifactsTypes = [
+                ArtifactType::SA, ArtifactType::DB->value, ArtifactType::BP->value, ArtifactType::MM
+            ];
+            $artifactsDescriptions = array_map(function ($item) {
+                return ArtifactType::description($item->value);
+            }, $artifactsTypes);
+            $artifactsCompleted = Artifact::query()->whereIn('type', [ArtifactType::SA->value, ArtifactType::DB->value, ArtifactType::BP->value, ArtifactType::MM->value])
+                ->where('project_id', $project->id)->where('status', '<>', ArtifactState::COMPLETED->value)->count();
+            if ($artifactsCompleted > 0) {
+                return [
+                    'allowed' => false,
+                    'message' => 'Project status could not be updated before' . implode(', ', $artifactsDescriptions) . ' artifacts are completed.'
+                ];
+            }
         }
         return [
             'allowed' => true,
@@ -94,7 +108,7 @@ class GateValidationService implements Contracts\GateValidationInterface
         }
         return [
             'allowed' => count($errors) == 0,
-            'message' => ucfirst(implode(',', $errors)) .  (count($errors) > 1 ? ' are required' : ' is required')
+            'message' => ucfirst(implode(',', $errors)) . (count($errors) > 1 ? ' are required' : ' is required')
         ];
     }
 }
