@@ -10,7 +10,8 @@ Stack: Laravel (API) + Vue 3 (UI)
   - 
   
 ***Users* All User is created by a seeder
-	Admin:admin@example.com : 1qazxsw2**
-	PM:pm@example.com : 1qazxsw2**
-	Engineer:engineer@example.com : 1qazxsw2**
-	Viewer:viewer@example.com : 1qazxsw2**
+	
+	- Admin:admin@example.com : 1qazxsw2**
+	- PM:pm@example.com : 1qazxsw2**
+	- Engineer:engineer@example.com : 1qazxsw2**
+	- Viewer:viewer@example.com : 1qazxsw2**
