@@ -52,5 +52,25 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('1qazxsw2**'),
         ]);
         $admin->assignRole('admin');
+        $pmUser = User::factory()->create([
+            'name' => 'Project Manager',
+            'email' => 'pm@example.com',
+            'password' => Hash::make('1qazxsw2**'),
+        ]);
+        $pmUser->assignRole('pm');
+
+        $ngUser = User::factory()->create([
+            'name' => 'Engineer User',
+            'email' => 'engineer@example.com',
+            'password' => Hash::make('1qazxsw2**'),
+        ]);
+        $ngUser->assignRole('engineer');
+
+        $viewerUser = User::factory()->create([
+            'name' => 'Viewer User',
+            'email' => 'viewer@example.com',
+            'password' => Hash::make('1qazxsw2**'),
+        ]);
+        $viewerUser->assignRole('viewer');
     }
 }
