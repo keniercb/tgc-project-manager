@@ -1,0 +1,13 @@
+/* Tailwind v3 entry */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+}
