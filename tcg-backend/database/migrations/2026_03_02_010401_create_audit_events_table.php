@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('audit_events', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id')->unsigned();
+            $table->integer('actor_user_id')->unsigned();
             $table->string('entity_type');
             $table->integer('entity_id')->unsigned();
             $table->string('action');

@@ -36,7 +36,7 @@ class AuditObserver
         $objectType = class_basename($model);
         $userId = auth()->id();
         AuditEvent::query()->create([
-            'user_id' => $userId,
+            'actor_user_id' => $userId,
             'entity_type' => $objectType,
             'entity_id' => $model->id,
             'action' => $action,
