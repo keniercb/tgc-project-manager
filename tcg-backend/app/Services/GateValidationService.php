@@ -106,21 +106,30 @@ class GateValidationService implements Contracts\GateValidationInterface
         if (empty($module->responsibility)) {
             $errors[] = 'responsibility';
         }
+        if (empty($module->inputs)) {
+            $errors[] = 'inputs';
+        }
+        $jsonErrors = [];
         if (!empty($module->inputs)) {
             $inputsDecoded = json_decode($module->inputs, true);
             if (count($inputsDecoded) == 0) {
-                $errors[] = 'inputs';
+                $jsonErrors[] = 'Inputs field must be a valid json object';
             }
         }
-        if (!empty($module->outputs)) {
+        if (empty($module->outputs)) {
+            $errors[] = 'outputs';
+        }else {
             $inputsDecoded = json_decode($module->outputs, true);
             if (count($inputsDecoded) == 0) {
-                $errors[] = 'outputs';
+                $jsonErrors[] = 'Outputs field must be a valid json object';
             }
+        }
+        if(count($errors)){
+            $jsonErrors[] = ucfirst(implode(',', $errors)) . (count($errors) > 1 ? ' fields are required' : ' field is required');
         }
         return [
             'allowed' => count($errors) == 0,
-            'message' => ucfirst(implode(',', $errors)) . (count($errors) > 1 ? ' are required' : ' is required')
+            'message' => implode('. ', $jsonErrors)
         ];
     }
 }
