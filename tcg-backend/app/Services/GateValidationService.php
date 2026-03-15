@@ -32,21 +32,14 @@ class GateValidationService implements Contracts\GateValidationInterface
         };
     }
 
-    public function validateProjectTransaction(Project $project): array
+    public function validateProjectTransaction(Project $project, ProjectStatus $newStatus): array
     {
-        if (!$project->isDirty()) {
-            return [
-                'allowed' => true,
-                'message' => ''
-            ];
-        }
-        if ($project->isDirty('status') && $project->getOriginal('status') == ProjectStatus::DISCOVERY->value
-        ) {
+        if ($project->status == ProjectStatus::DISCOVERY->value && $newStatus == ProjectStatus::EXECUTION) {
             $artifactsTypes = [
-                ArtifactType::SA, ArtifactType::DB->value, ArtifactType::BP->value, ArtifactType::MM
+                ArtifactType::SA, ArtifactType::DB, ArtifactType::BP, ArtifactType::MM
             ];
             $artifactsDescriptions = array_map(function ($item) {
-                return ArtifactType::description($item->value);
+                return ArtifactType::description($item);
             }, $artifactsTypes);
             $artifactsCompleted = Artifact::query()->whereIn('type', [ArtifactType::SA->value, ArtifactType::DB->value, ArtifactType::BP->value, ArtifactType::MM->value])
                 ->where('project_id', $project->id)->where('status', '<>', ArtifactState::COMPLETED->value)->count();
@@ -118,13 +111,13 @@ class GateValidationService implements Contracts\GateValidationInterface
         }
         if (empty($module->outputs)) {
             $errors[] = 'outputs';
-        }else {
+        } else {
             $inputsDecoded = json_decode($module->outputs, true);
             if (count($inputsDecoded) == 0) {
                 $jsonErrors[] = 'Outputs field must be a valid json object';
             }
         }
-        if(count($errors)){
+        if (count($errors)) {
             $jsonErrors[] = ucfirst(implode(',', $errors)) . (count($errors) > 1 ? ' fields are required' : ' field is required');
         }
         return [

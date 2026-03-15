@@ -2,6 +2,7 @@
 
 namespace App\Services\Contracts;
 
+use App\Enums\ProjectStatus;
 use App\Models\Artifact;
 use App\Models\Module;
 use App\Models\Project;
@@ -9,7 +10,7 @@ use App\Models\Project;
 interface GateValidationInterface
 {
     public function validateArtifactAsDone(Artifact $artifact): array;
-    public function validateProjectTransaction(Project $project): array;
+    public function validateProjectTransaction(Project $project, ProjectStatus $newStatus): array;
 
     public function canValidateModule(Module $module): array;
 }

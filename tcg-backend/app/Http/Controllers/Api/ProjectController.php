@@ -54,7 +54,7 @@ class ProjectController extends Controller
     {
 
         $projectData = new ProjectInputData($request->input('name'), $request->input('clientName'), ProjectStatus::from($request->input('status')));
-        $validation = $this->gateValidationService->validateProjectTransaction($this->projectService->findProjectById($id));
+        $validation = $this->gateValidationService->validateProjectTransaction($this->projectService->findProjectById($id), ProjectStatus::from($request->input('status')));
         if (!$validation['allowed']) {
             return response()->json([
                 'message' => $validation['message']], 500);

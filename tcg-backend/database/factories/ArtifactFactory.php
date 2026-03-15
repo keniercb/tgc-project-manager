@@ -23,8 +23,8 @@ class ArtifactFactory extends Factory
             'project_id' => null,
             'type' => $this->faker->randomElement(ArtifactType::values()),
             'status' => ArtifactState::NOT_STARTED,
-            'owner_user_id' => null,
-            'content_json' => [],
+            'owner_id' => null,
+            'content' => "",
             'completed_at' => null,
         ];
     }

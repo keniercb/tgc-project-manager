@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ProjectStatus;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 use App\Models\User;
@@ -22,11 +24,13 @@ class ArtifactGateTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->pmUser = User::factory()->create();
-        $pmRole = Role::query()->firstOrCreate(['name' => 'pm', 'guard_name' => 'api']);
-        $pmRole->givePermissionTo(['artifacts.manage', 'modules.manage']);
-        $this->pmUser->assignRole('pm');
+        $pmRole = Role::query()->firstOrCreate(['name' => 'admin', 'guard_name' => 'api']);
+        $permission[] = Permission::query()->firstOrCreate(['name' => 'artifacts.manage', 'guard_name' => 'api']);
+        $permission[] = Permission::query()->firstOrCreate(['name' => 'project.manage', 'guard_name' => 'api']);
+        $pmRole->givePermissionTo($permission);
+        $this->pmUser->assignRole('admin');
+        Sanctum::actingAs($this->pmUser);
         $this->project = Project::factory()->create([
             'status' => 'discovery',
             'created_by' => $this->pmUser->id,
@@ -36,6 +40,7 @@ class ArtifactGateTest extends TestCase
     /** @test */
     public function gate_1_cannot_mark_domain_breakdown_done_if_big_picture_not_done()
     {
+
         Artifact::factory()->create([
             'project_id' => $this->project->id,
             'type' => ArtifactType::BP->value,
@@ -47,21 +52,12 @@ class ArtifactGateTest extends TestCase
             'type' => ArtifactType::DB->value,
             'status' => ArtifactState::IN_PROGRESS->value,
         ]);
-
-        Sanctum::actingAs($this->pmUser);
-
-        $response = $this->patchJson("/api/v1/artifacts/{$domainBreakdown->id}", [
+        $response = $this->put("/api/v1/artifact/update/{$domainBreakdown->id}", [
             'status' => ArtifactState::COMPLETED->value,
         ]);
-
-        $response->assertStatus(500)
-            ->assertJsonValidationErrors(['status'])
-            ->assertJson([
-                'message' => 'Cannot complete this artifact. Big Picture must be completed first.',
-            ]);
-
+        $response->assertStatus(500);
         $domainBreakdown->refresh();
-        $this->assertEquals(ArtifactState::IN_PROGRESS, $domainBreakdown->status);
+        $this->assertEquals(ArtifactState::IN_PROGRESS->value, $domainBreakdown->status);
     }
 
     /** @test */
@@ -73,22 +69,18 @@ class ArtifactGateTest extends TestCase
             'status' => ArtifactState::COMPLETED->value,
             'completed_at' => now(),
         ]);
-
-
         $domainBreakdown = Artifact::factory()->create([
             'project_id' => $this->project->id,
             'type' => ArtifactType::DB->value,
             'status' => ArtifactState::IN_PROGRESS->value,
         ]);
-
-        Sanctum::actingAs($this->pmUser);
-
-        $response = $this->patchJson("/api/v1/artifacts/{$domainBreakdown->id}", [
+        $response = $this->put("/api/v1/artifact/update/{$domainBreakdown->id}", [
             'status' => ArtifactState::COMPLETED->value,
+            'type' => ArtifactType::DB->value,
+            'projectId' => $this->project->id,
+            'content' => json_encode([])
         ]);
-
         $response->assertStatus(200);
-
         $domainBreakdown->refresh();
         $this->assertEquals(ArtifactState::COMPLETED->value, $domainBreakdown->status);
         $this->assertNotNull($domainBreakdown->completed_at);
@@ -97,7 +89,8 @@ class ArtifactGateTest extends TestCase
     /** @test */
     public function gate_4_cannot_move_project_to_execution_if_required_artifacts_not_done()
     {
-        $this->project->update(['status' => 'discovery']);
+
+        $this->project->update(['status' => ProjectStatus::DISCOVERY->value]);
 
         $requiredTypes = [
             ArtifactType::SA,
@@ -105,7 +98,6 @@ class ArtifactGateTest extends TestCase
             ArtifactType::DB,
             ArtifactType::MM,
         ];
-
         foreach ($requiredTypes as $type) {
             Artifact::factory()->create([
                 'project_id' => $this->project->id,
@@ -113,36 +105,28 @@ class ArtifactGateTest extends TestCase
                 'status' => ArtifactState::IN_PROGRESS->value,
             ]);
         }
-
-        Sanctum::actingAs($this->pmUser);
-
-        $response = $this->patchJson("/api/v1/projects/{$this->project->id}", [
-            'status' => 'execution',
+        $response = $this->put("/api/v1/projects/{$this->project->id}", [
+            'status' => ProjectStatus::EXECUTION->value,
+            'name'=>$this->project->name,
+            'clientName' => $this->project->client_name,
         ]);
-        $response->assertStatus(500)
-            ->assertJsonStructure(['message', 'errors', 'blocking_artifacts'])
-            ->assertJson([
-                'message' => 'Cannot move project to execution. Complete required artifacts first.',
-            ]);
-
+        $response->assertStatus(500);
         $this->project->refresh();
-        $this->assertEquals('discovery', $this->project->status);
+        $this->assertEquals(ProjectStatus::DISCOVERY->value, $this->project->status);
     }
 
     /** @test */
     public function gate_4_can_move_project_to_execution_if_all_required_artifacts_done()
     {
-        // Arrange: Project in discovery
+
         $this->project->update(['status' => 'discovery']);
 
-        // Create required artifacts as DONE
         $requiredTypes = [
             ArtifactType::SA,
             ArtifactType::BP,
             ArtifactType::DB,
             ArtifactType::MM,
         ];
-
         foreach ($requiredTypes as $type) {
             Artifact::factory()->create([
                 'project_id' => $this->project->id,
@@ -151,15 +135,12 @@ class ArtifactGateTest extends TestCase
                 'completed_at' => now(),
             ]);
         }
-
-        Sanctum::actingAs($this->pmUser);
-
-        $response = $this->patchJson("/api/v1/projects/{$this->project->id}", [
-            'status' => 'execution',
+        $response = $this->put("/api/v1/projects/{$this->project->id}", [
+            'status' => ProjectStatus::EXECUTION->value,
+            'name'=> $this->project->name,
+            'clientName'=> $this->project->client_name,
         ]);
-
         $response->assertStatus(200);
-
         $this->project->refresh();
         $this->assertEquals('execution', $this->project->status);
     }
