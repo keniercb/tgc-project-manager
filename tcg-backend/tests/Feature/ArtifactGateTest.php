@@ -18,22 +18,21 @@ class ArtifactGateTest extends TestCase
 {
     use RefreshDatabase;
 
-    private User $pmUser;
     private Project $project;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->pmUser = User::factory()->create();
+        $pmUser = User::factory()->create();
         $pmRole = Role::query()->firstOrCreate(['name' => 'admin', 'guard_name' => 'api']);
         $permission[] = Permission::query()->firstOrCreate(['name' => 'artifacts.manage', 'guard_name' => 'api']);
         $permission[] = Permission::query()->firstOrCreate(['name' => 'project.manage', 'guard_name' => 'api']);
         $pmRole->givePermissionTo($permission);
-        $this->pmUser->assignRole('admin');
-        Sanctum::actingAs($this->pmUser);
+        $pmUser->assignRole('admin');
+        Sanctum::actingAs($pmUser);
         $this->project = Project::factory()->create([
             'status' => 'discovery',
-            'created_by' => $this->pmUser->id,
+            'created_by' => $pmUser->id,
         ]);
     }
 
