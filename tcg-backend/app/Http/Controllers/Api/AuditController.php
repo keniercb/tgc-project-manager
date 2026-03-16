@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\FilterAuditRequest;
+use App\Http\Resources\AuditResource;
 use App\Services\Contracts\AuditServiceInterface;
 
 class AuditController extends Controller
@@ -15,6 +16,6 @@ class AuditController extends Controller
 
     public function list(FilterAuditRequest $request)
     {
-        return $this->auditService->list($request->validated());
+        return AuditResource::collection($this->auditService->list($request->validated()));
     }
 }

@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Repositories\ArtifactRepository;
+use App\Repositories\AuditRepository;
 use App\Repositories\Contracts\ArtifactRepositoryInterface;
+use App\Repositories\Contracts\AuditRepositoryInterface;
 use App\Repositories\Contracts\ModuleRepositoryInterface;
 use App\Repositories\Contracts\ProjectRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
@@ -11,7 +13,9 @@ use App\Repositories\ModuleRepository;
 use App\Repositories\ProjectRepository;
 use App\Repositories\UserRepository;
 use App\Services\ArtifactService;
+use App\Services\AuditService;
 use App\Services\Contracts\ArtifactServiceInterface;
+use App\Services\Contracts\AuditServiceInterface;
 use App\Services\Contracts\GateValidationInterface;
 use App\Services\Contracts\ModuleServiceInterface;
 use App\Services\Contracts\ProjectServiceInterface;
@@ -34,6 +38,8 @@ class DependencyInjectionServiceProvider extends ServiceProvider
         GateValidationInterface::class => GateValidationService::class,
         ModuleRepositoryInterface::class => ModuleRepository::class,
         ModuleServiceInterface::class => ModuleService::class,
+        AuditRepositoryInterface::class => AuditRepository::class,
+        AuditServiceInterface::class => AuditService::class,
     ];
 
     /**

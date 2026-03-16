@@ -27,6 +27,8 @@ class AuditRepository implements Contracts\AuditRepositoryInterface
 
     public function getPaginated($params = array()): LengthAwarePaginator
     {
-        return $this->getQuery($params)->paginate($params['perPage'], '*', 'page', $params['page']);
+        return $this->getQuery($params)
+            ->orderBy('created_at', 'desc')
+            ->paginate($params['perPage'], '*', 'page', $params['page']);
     }
 }

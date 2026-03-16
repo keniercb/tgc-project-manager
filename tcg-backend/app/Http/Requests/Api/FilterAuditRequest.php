@@ -24,7 +24,7 @@ class FilterAuditRequest extends FormRequest
         return [
             'objectType' => 'required|string|in:Project,Artifact,Module',
             'perPage' => 'required|integer|min:1',
-            'page' => 'required|integer|min:1',
+            'page' => 'required|integer|min:0',
             'objectId' => 'required|integer',
         ];
     }
