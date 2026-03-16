@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\ArtifactController;
+use App\Http\Controllers\Api\AuditController;
 use App\Http\Controllers\Api\ModuleController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\UserController;
@@ -36,6 +37,10 @@ Route::prefix('v1')->group(function () {
             Route::post('/validate/{id}', [ModuleController::class, 'validate']);
             Route::post('/deploy/{id}', [ModuleController::class, 'deploy']);
             Route::put('/{id}', [ModuleController::class, 'update']);
+        });
+
+        Route::prefix('audit')->group(function () {
+            Route::get('/', [AuditController::class, 'list']);
         });
 
         Route::post('/logout', [UserController::class, 'logout']);
