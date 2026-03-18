@@ -13,7 +13,7 @@ export const useProjectStore = defineStore('projects', () => {
     const pagination = ref({
         currentPage: 1,
         lastPage: 1,
-        perPage: 10,
+        perPage: 5,
         total: 0
     });
 

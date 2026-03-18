@@ -20,7 +20,7 @@ class AuditResource extends JsonResource
             'type' => $this->entity_type,
             'action' => $this->action,
             'date' => Carbon::parse($this->created_at)->toDateTimeString(),
-            'user' => User::query()->find($this->actor_user_id)->name
+            'userName' => User::query()->find($this->actor_user_id)->name
         ];
     }
 }

@@ -133,9 +133,16 @@
           />
         </div>
       </div>
+
+    </div>
+    <div class="p-6">
+      <AuditTimeline
+          :objectType="'Project'"
+          :objectId="store.currentId"
+          @changePage="changePage"
+      />
     </div>
   </div>
-
   <DeleteModal
       v-if="showDeleteModal"
       :title="deleteConfig.title"
@@ -177,20 +184,22 @@ import ArtifactList from "../components/ArtifactList.vue";
 import ModuleList from "../components/ModuleList.vue";
 import {useModuleStore} from "../store/modules.ts";
 import {useArtifactsStore} from "../store/artifacts.ts";
+import {useAuditStore} from "../store/audit.ts";
 
 import DeleteModal from "../components/modals/DeleteModal.vue";
 import router from "../router";
 import ArtifactModal from "../components/modals/ArtifactModal.vue";
 import type {Artifact, ArtifactFormData} from "@/types/artifact.ts";
 import ErrorModal from "../components/modals/ErrorModal.vue";
-import ModuleModal from "../components/modals/ModuleModal.vue";
 
+import ModuleModal from "../components/modals/ModuleModal.vue";
 import type {Module, ModuleFormData} from "@/types/modules.ts";
+import AuditTimeline from "../components/AuditTimeline.vue";
 
 const store = useProjectStore();
 const moduleStore = useModuleStore();
 const artifactStore = useArtifactsStore();
-
+const auditStore = useAuditStore();
 const deleteConfig = ref({
   type: '' as 'project' | 'module' | 'artifact',
   id: 0 as number,
